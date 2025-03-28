@@ -1,0 +1,24 @@
+{
+  "name": "aws-cdk-networking",
+  "version": "1.0.0",
+  "description": "Demo AWS CDK application to create networking constructs",
+  "scripts": {
+    "synth": "rm -rf cdk.out/* && npx cdk synth -q"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "aws-cdk": "^2.178.2",
+    "esbuild": "^0.25.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.7.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.178.2",
+    "aws-lambda": "^1.0.7",
+    "aws-sdk": "^2.1692.0",
+    "@types/cfn-response": "^1.0.8",
+    "cfn-response": "^1.0.1",
+    "constructs": "^10.4.2",
+    "source-map-support": "^0.5.21"
+  }
+}
