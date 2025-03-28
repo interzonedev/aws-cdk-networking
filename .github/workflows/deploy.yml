@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      stack-id-fragment:
+        required: true
+        type: string
+        description: 'Stack Identifier'
+
+permissions:
+  id-token: write      # Required for OIDC
+  contents: read       # To clone the repo
+
+jobs:
+  display-inputs:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Display inputs
+        run: |
+          echo "inputs = ${{ toJson(inputs) }}"
