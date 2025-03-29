@@ -1,4 +1,4 @@
-name: Deploy
+name: Destroy
 
 on:
   workflow_dispatch:
@@ -40,7 +40,7 @@ jobs:
       gha-role-arn: ${{ needs.set-shared-vars.outputs.gha-role-arn }}
     secrets: inherit
 
-  deploy:
+  destroy:
     needs: [set-shared-vars, cdk-synth]
     runs-on: [ubuntu-latest]
 
@@ -74,4 +74,4 @@ jobs:
       - name: CDK deploy
         working-directory: ./infrastructure
         run: |
-          npx cdk --app cdk.out --require-approval never deploy networking/networking-stack
+          npx cdk --app cdk.out destroy networking/networking-stack --force

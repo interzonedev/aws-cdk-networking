@@ -1,0 +1,59 @@
+name: Synthesize CDK Code
+
+on:
+  workflow_call:
+    inputs:
+      code-version-ref:
+        required: true
+        type: string
+      code-version-hash:
+        required: true
+        type: string
+      stack-id-fragment:
+        required: true
+        type: string
+      gha-role-arn:
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  synth:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout working directory
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.code-version-ref }}
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.gha-role-arn }}
+          aws-region: us-west-1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install NodeJS dependencies
+        working-directory: ./infrastructure
+        run: npm ci
+
+      - name: CDK synth
+        working-directory: ./infrastructure
+        run: |
+          npm run synth -- \
+            --context stack-id-fragment=${{ inputs.stack-id-fragment }} \
+            --context code-version-hash=${{ inputs.code-version-hash }} \
+            --context code-version-ref=${{ inputs.code-version-ref }}
+
+      - name: Save cdk.out directory as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdk.out
+          path: infrastructure/cdk.out/

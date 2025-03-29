@@ -1,0 +1,67 @@
+name: Set Shared Variables
+
+on:
+  workflow_call:
+    inputs:
+      code-version-ref:
+        required: false
+        type: string
+    outputs:
+      code-version-ref:
+        value: ${{ jobs.set-outputs.outputs.code-version-ref }}
+      code-version-hash:
+        value: ${{ jobs.set-outputs.outputs.code-version-hash }}
+      aws-account-number:
+        value: ${{ jobs.set-outputs.outputs.aws-account-number }}
+      gha-role-arn:
+        value: ${{ jobs.set-outputs.outputs.gha-role-arn }}
+
+jobs:
+  set-outputs:
+    runs-on: [ubuntu-latest]
+    outputs:
+      code-version-ref: ${{ steps.set-outputs.outputs.code-version-ref-output }}
+      code-version-hash: ${{ steps.set-outputs.outputs.code-version-hash-output }}
+      aws-account-number: ${{ steps.set-outputs.outputs.aws-account-number-output }}
+      gha-role-arn: ${{ steps.set-outputs.outputs.gha-role-arn-output }}
+    steps:
+      - name: Checkout working directory
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.code-version-ref }}
+
+      - id: set-outputs
+        name: Set Outputs
+        run: |
+          # Default the Git version reference and commit hash to those taken from the workflow run.
+          code_version_ref=${{ github.ref_name }}
+          code_version_hash=${{ github.sha }}
+
+          # If the Git version reference is specified, use it and derive the Git commit hash from it.
+          if [ ! -z "${{ inputs.code-version-ref }}" ]
+          then
+            code_version_ref=${{ inputs.code-version-ref }}
+            code_version_hash=`git rev-parse ${{ inputs.code-version-ref }}`
+          fi
+
+          aws_account_number='815332568426'
+          echo "aws_account_number = \"$aws_account_number\""
+
+          gha_role_arn="arn:aws:iam::$aws_account_number:role/gha-interzonedev"
+          echo "gha_role_arn = \"$gha_role_arn\""
+
+          echo "code-version-ref-output=$code_version_ref" >> $GITHUB_OUTPUT
+          echo "code-version-hash-output=$code_version_hash" >> $GITHUB_OUTPUT
+          echo "aws-account-number-output=$aws_account_number" >> $GITHUB_OUTPUT
+          echo "gha-role-arn-output=$gha_role_arn" >> $GITHUB_OUTPUT
+
+  display-outputs:
+    needs: set-outputs
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Display Outputs
+        run: |
+          echo "needs.set-outputs.outputs.code-version-ref = \"${{ needs.set-outputs.outputs.code-version-ref }}\""
+          echo "needs.set-outputs.outputs.code-version-hash = \"${{ needs.set-outputs.outputs.code-version-hash }}\""
+          echo "needs.set-outputs.outputs.aws-account-number = \"${{ needs.set-outputs.outputs.aws-account-number }}\""
+          echo "needs.set-outputs.outputs.gha-role-arn = \"${{ needs.set-outputs.outputs.gha-role-arn }}\""
