@@ -7,6 +7,10 @@ on:
         required: true
         type: string
         description: 'Stack Identifier'
+      code-version-ref:
+        required: false
+        type: string
+        description: 'Optional: Git Commit Ref'
 
 permissions:
   id-token: write      # Required for OIDC
@@ -26,6 +30,20 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - id: set-common-values
+        name: Set Common Values
+        run: |
+          # Default the Git version reference and commit hash to those taken from the workflow run.
+          code_version_ref=${{ github.ref_name }}
+          code_version_hash=${{ github.sha }}
+
+          # If the Git version reference is specified, use it and derive the Git commit hash from it.
+          if [ ! -z "${{ inputs.code-version-ref }}" ]
+          then
+            code_version_ref=${{ inputs.code-version-ref }}
+            code_version_hash=`git rev-parse ${{ inputs.code-version-ref }}`
+          fi
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
