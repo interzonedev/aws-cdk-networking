@@ -30,18 +30,8 @@ jobs:
       code-version-ref: ${{ inputs.code-version-ref }}
     secrets: inherit
 
-  cdk-synth:
-    needs: [set-shared-vars]
-    uses: ./.github/workflows/cdk-synth.yml
-    with:
-      code-version-ref: ${{ needs.set-shared-vars.outputs.code-version-ref }}
-      code-version-hash: ${{ needs.set-shared-vars.outputs.code-version-hash }}
-      stack-id-fragment: ${{ inputs.stack-id-fragment }}
-      gha-role-arn: ${{ needs.set-shared-vars.outputs.gha-role-arn }}
-    secrets: inherit
-
   destroy:
-    needs: [set-shared-vars, cdk-synth]
+    needs: [set-shared-vars]
     runs-on: [ubuntu-latest]
 
     steps:
@@ -50,28 +40,15 @@ jobs:
         with:
           ref: ${{ inputs.code-version-ref }}
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: CDK synth
+        uses: ./.github/actions/cdk-synth
         with:
-          role-to-assume: ${{ needs.set-shared-vars.outputs.gha-role-arn }}
-          aws-region: us-west-1
+          code-version-ref: ${{ needs.set-shared-vars.outputs.code-version-ref }}
+          code-version-hash: ${{ needs.set-shared-vars.outputs.code-version-hash }}
+          stack-id-fragment: ${{ inputs.stack-id-fragment }}
+          gha-role-arn: ${{ needs.set-shared-vars.outputs.gha-role-arn }}
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install NodeJS dependencies
-        working-directory: ./infrastructure
-        run: npm install aws-cdk
-
-      - name: Download cdk.out directory from artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: cdk.out
-          path: infrastructure/cdk.out/
-
-      - name: CDK deploy
+      - name: CDK destroy
         working-directory: ./infrastructure
         run: |
           npx cdk --app cdk.out destroy networking/networking-stack --force

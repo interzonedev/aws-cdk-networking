@@ -1,0 +1,43 @@
+name: Synthesize CDK Code
+
+inputs:
+  code-version-ref:
+    required: true
+    type: string
+  code-version-hash:
+    required: true
+    type: string
+  stack-id-fragment:
+    required: true
+    type: string
+  gha-role-arn:
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS credentials via OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.gha-role-arn }}
+        aws-region: us-west-1
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install NodeJS dependencies
+      working-directory: ./infrastructure
+      shell: bash
+      run: npm ci
+
+    - name: CDK synth
+      working-directory: ./infrastructure
+      shell: bash
+      run: |
+        npm run synth -- \
+          --context stack-id-fragment=${{ inputs.stack-id-fragment }} \
+          --context code-version-hash=${{ inputs.code-version-hash }} \
+          --context code-version-ref=${{ inputs.code-version-ref }}
