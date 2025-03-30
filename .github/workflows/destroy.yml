@@ -24,14 +24,7 @@ jobs:
         run: |
           echo "inputs = ${{ toJson(inputs) }}"
 
-  set-shared-vars:
-    uses: ./.github/workflows/set-shared-vars.yml
-    with:
-      code-version-ref: ${{ inputs.code-version-ref }}
-    secrets: inherit
-
   destroy:
-    needs: [set-shared-vars]
     runs-on: [ubuntu-latest]
 
     steps:
@@ -40,13 +33,19 @@ jobs:
         with:
           ref: ${{ inputs.code-version-ref }}
 
+      - id: set-common-vars
+        name: Set Common Variables
+        uses: ./.github/actions/common-vars
+        with:
+          code-version-ref: ${{ inputs.code-version-ref }}
+
       - name: CDK synth
         uses: ./.github/actions/cdk-synth
         with:
-          code-version-ref: ${{ needs.set-shared-vars.outputs.code-version-ref }}
-          code-version-hash: ${{ needs.set-shared-vars.outputs.code-version-hash }}
+          code-version-ref: ${{ steps.set-common-vars.outputs.code-version-ref }}
+          code-version-hash: ${{ steps.set-common-vars.outputs.code-version-hash }}
           stack-id-fragment: ${{ inputs.stack-id-fragment }}
-          gha-role-arn: ${{ needs.set-shared-vars.outputs.gha-role-arn }}
+          gha-role-arn: ${{ steps.set-common-vars.outputs.gha-role-arn }}
 
       - name: CDK destroy
         working-directory: ./infrastructure

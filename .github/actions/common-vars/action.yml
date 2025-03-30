@@ -1,0 +1,51 @@
+name: Set Common Variables
+
+inputs:
+  code-version-ref:
+    required: false
+    type: string
+outputs:
+  code-version-ref:
+    value: ${{ steps.set-outputs.outputs.code-version-ref }}
+  code-version-hash:
+    value: ${{ steps.set-outputs.outputs.code-version-hash }}
+  aws-account-number:
+    value: ${{ steps.set-outputs.outputs.aws-account-number }}
+  gha-role-arn:
+    value: ${{ steps.set-outputs.outputs.gha-role-arn }}
+
+runs:
+  using: composite
+  steps:
+    - id: set-outputs
+      name: Set Outputs
+      shell: bash
+      run: |
+        # Default the Git version reference and commit hash to those taken from the workflow run.
+        code_version_ref=${{ github.ref_name }}
+        code_version_hash=${{ github.sha }}
+
+        # If the Git version reference is specified, use it and derive the Git commit hash from it.
+        if [ ! -z "${{ inputs.code-version-ref }}" ]
+        then
+          code_version_ref=${{ inputs.code-version-ref }}
+          code_version_hash=`git rev-parse ${{ inputs.code-version-ref }}`
+        fi
+
+        aws_account_number='815332568426'
+
+        gha_role_arn="arn:aws:iam::$aws_account_number:role/gha-interzonedev"
+
+        echo "code-version-ref=$code_version_ref" >> $GITHUB_OUTPUT
+        echo "code-version-hash=$code_version_hash" >> $GITHUB_OUTPUT
+        echo "aws-account-number=$aws_account_number" >> $GITHUB_OUTPUT
+        echo "gha-role-arn=$gha_role_arn" >> $GITHUB_OUTPUT
+
+    - id: display-outputs
+      name: Display Outputs
+      shell: bash
+      run: |
+        echo "steps.set-outputs.outputs.code-version-ref = \"${{ steps.set-outputs.outputs.code-version-ref }}\""
+        echo "steps.set-outputs.outputs.code-version-hash = \"${{ steps.set-outputs.outputs.code-version-hash }}\""
+        echo "steps.set-outputs.outputs.aws-account-number = \"${{ steps.set-outputs.outputs.aws-account-number }}\""
+        echo "steps.set-outputs.outputs.gha-role-arn = \"${{ steps.set-outputs.outputs.gha-role-arn }}\""
