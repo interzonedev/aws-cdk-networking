@@ -10,6 +10,6 @@ export class NetworkingStack extends CommonStack {
     constructor(scope: Construct, id: string, props: NetworkingStackProps) {
         super(scope, id, props);
 
-        new NetworkingConstructs(this, 'networking', props);
+        new NetworkingConstructs(this, 'networking-constructs', props);
     }
 }

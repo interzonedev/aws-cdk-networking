@@ -14,8 +14,7 @@ describe('NetworkingConstructs constructs created', () => {
         ...testNetworkingConstructsProps,
         stackName: getStackName('test', 'test'),
         codeVersionHash: 'abc123',
-        codeVersionRef: 'main',
-        substageType: 'test'
+        codeVersionRef: 'main'
     };
 
     let template: Template;
@@ -36,7 +35,7 @@ describe('NetworkingConstructs constructs created', () => {
         template.hasOutput('*', {
             Value: testStackProps.codeVersionHash,
             Export: {
-                Name: getConstructName(testNetworkingConstructsProps.stackIdFragment, `code-version-hash-${testStackProps.substageType}`)
+                Name: getConstructName(testNetworkingConstructsProps.stackIdFragment, 'code-version-hash-test-stack')
             }
         });
     });
@@ -45,7 +44,7 @@ describe('NetworkingConstructs constructs created', () => {
         template.hasOutput('*', {
             Value: testStackProps.codeVersionRef,
             Export: {
-                Name: getConstructName(testNetworkingConstructsProps.stackIdFragment, `code-version-ref-${testStackProps.substageType}`)
+                Name: getConstructName(testNetworkingConstructsProps.stackIdFragment, 'code-version-ref-test-stack')
             }
         });
     });

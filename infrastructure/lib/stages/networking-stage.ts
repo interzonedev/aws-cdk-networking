@@ -16,8 +16,7 @@ export class NetworkingStage extends CommonStage {
             stackName: getStackName(stackIdFragment, 'networking'),
             stackIdFragment: stackIdFragment,
             codeVersionHash: codeVersionHash,
-            codeVersionRef: codeVersionRef,
-            substageType: 'networking'
+            codeVersionRef: codeVersionRef
         });
     }
 }

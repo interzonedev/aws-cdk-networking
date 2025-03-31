@@ -3,6 +3,25 @@ name: Deploy
 on:
   workflow_dispatch:
     inputs:
+      aws-account:
+        required: true
+        type: choice
+        description: 'AWS Account'
+        options:
+          - dev
+      aws-region:
+        required: true
+        type: choice
+        description: 'AWS Region'
+        options:
+          - us-west-1
+          - us-west-2
+      deployment-stage:
+        required: true
+        type: choice
+        description: 'Deployment Stage'
+        options:
+          - networking
       stack-id-fragment:
         required: true
         type: string
@@ -50,4 +69,5 @@ jobs:
       - name: CDK deploy
         working-directory: ./infrastructure
         run: |
-          npx cdk --app cdk.out --require-approval never deploy networking/networking-stack
+          stackname="${{ inputs.aws-account }}-${{ inputs.aws-region }}/${{ inputs.deployment-stage }}/*"
+          npx cdk --app cdk.out --require-approval never deploy $stackname

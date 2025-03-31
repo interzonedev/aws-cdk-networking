@@ -1,11 +1,6 @@
 import { App } from 'aws-cdk-lib';
-import { NetworkingStage } from '../lib/stages/networking-stage';
-
-const account = process.env.CDK_DEFAULT_ACCOUNT;
-const region = process.env.CDK_DEFAULT_REGION;
-
-console.log('app.ts: account = %s', account);
-console.log('app.ts: region = %s', region);
+import { DEPLOY_ACCOUNTS, DEPLOY_REGIONS } from '../config/environments';
+import { EnvironmentStage } from '../lib/stages/environment-stage';
 
 const app = new App();
 
@@ -23,12 +18,14 @@ if (stackIdFragment === undefined) {
     process.exit(1);
 }
 
-new NetworkingStage(app, 'networking', {
-    stackIdFragment: stackIdFragment,
-    codeVersionHash: codeVersionHash,
-    codeVersionRef: codeVersionRef,
-    env: {
-        account: account,
-        region: region
-    }
-});
+DEPLOY_ACCOUNTS.forEach(awsAccount =>
+    DEPLOY_REGIONS.forEach(region =>
+        new EnvironmentStage(app, `${awsAccount.name}-${region}`, {
+            stackIdFragment: stackIdFragment,
+            codeVersionHash: codeVersionHash,
+            codeVersionRef: codeVersionRef,
+            awsAccount: awsAccount,
+            region: region
+        })
+    )
+);
