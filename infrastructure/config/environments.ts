@@ -1,4 +1,5 @@
-export const APP_NAME = 'aws-cdk-networking';
+export const APP_NAME: string = 'aws-cdk-networking';
+export const ABBREVIATED_APP_NAME: string = 'acn';
 
 export interface AWSAccount {
     name: string;
@@ -23,4 +24,8 @@ export const getStackName = (nameFragment: string, constructType: string): strin
 
 export const getConstructName = (nameFragment: string, constructType: string): string => {
     return `app-${APP_NAME}-${nameFragment}-${constructType}`;
+};
+
+export const getAbbreviatedConstructName = (nameFragment: string, constructType: string) => {
+    return `app-${ABBREVIATED_APP_NAME}-${nameFragment}-${constructType}`;
 };
