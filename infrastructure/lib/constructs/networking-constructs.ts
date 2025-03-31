@@ -1,8 +1,8 @@
 import { Construct } from 'constructs';
-import { APP_NAME } from '../../config/environments';
-import { Stack } from 'aws-cdk-lib';
 import { CommonConstruct, CommonConstructProps } from './common-construct';
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { ARecord, PrivateHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { getConstructName } from '../../config/environments';
 
 export interface NetworkingConstructsProps extends CommonConstructProps {
 }
@@ -13,10 +13,23 @@ export class NetworkingConstructs extends CommonConstruct {
 
         const {stackIdFragment} = props;
 
-        new StringParameter(this, 'foo-param', {
-            parameterName: `/app/${APP_NAME}/${stackIdFragment}/foo`,
-            description: `Foo for ${Stack.of(this)}`,
-            stringValue: 'foo'
+        const vpcId = 'vpc';
+        const vpcName = getConstructName(stackIdFragment, vpcId);
+        const vpc = new Vpc(this, vpcId, {
+            vpcName: vpcName,
+            maxAzs: 2,
+            natGateways: 1
+        });
+
+        const privateHostedZone = new PrivateHostedZone(this, 'private-hosted-zone', {
+            zoneName: 'aws.interzonedev.com',
+            vpc: vpc
+        });
+
+        new ARecord(this, 'dns-a-record', {
+            zone: privateHostedZone,
+            recordName: 'api',
+            target: RecordTarget.fromIpAddresses('10.0.1.100')
         });
     }
 }
