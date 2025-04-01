@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import { CommonConstruct, CommonConstructProps } from './common-construct';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
-import { ARecord, PrivateHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { ARecord, CnameRecord, PrivateHostedZone, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { getConstructName } from '../../config/environments';
 
 export interface NetworkingConstructsProps extends CommonConstructProps {
@@ -18,18 +18,56 @@ export class NetworkingConstructs extends CommonConstruct {
         const vpc = new Vpc(this, vpcId, {
             vpcName: vpcName,
             maxAzs: 2,
-            natGateways: 1
+            subnetConfiguration: [
+                {
+                    cidrMask: 24,
+                    name: 'public-subnet',
+                    subnetType: SubnetType.PUBLIC
+                },
+                {
+                    cidrMask: 24,
+                    name: 'private-subnet',
+                    subnetType: SubnetType.PRIVATE_WITH_EGRESS // For private with internet access via NAT
+                }
+            ],
+            natGateways: 1 // Required for PRIVATE_WITH_EGRESS subnets
+        });
+
+        const publicHostedZone = new PublicHostedZone(this, 'public-hosted-zone', {
+            zoneName: 'public.interzonedev.com'
         });
 
         const privateHostedZone = new PrivateHostedZone(this, 'private-hosted-zone', {
-            zoneName: 'aws.interzonedev.com',
+            zoneName: 'private.interzonedev.com',
             vpc: vpc
         });
 
-        new ARecord(this, 'dns-a-record', {
+        // A Record in Public Zone
+        new ARecord(this, 'public-dns-a-record', {
+            zone: publicHostedZone,
+            recordName: 'app',
+            target: RecordTarget.fromIpAddresses('1.2.3.4')
+        });
+
+        // CNAME Record in Public Zone
+        new CnameRecord(this, 'public-dns-cname-record', {
+            zone: publicHostedZone,
+            recordName: 'www',
+            domainName: 'public.interzonedev.com'
+        });
+
+        // A Record in Private Zone
+        new ARecord(this, 'private-dns-a-record', {
             zone: privateHostedZone,
-            recordName: 'api',
-            target: RecordTarget.fromIpAddresses('10.0.1.100')
+            recordName: 'internal',
+            target: RecordTarget.fromIpAddresses('10.0.0.5')
+        });
+
+        // CNAME Record in Private Zone
+        new CnameRecord(this, 'private-dns-cname-record', {
+            zone: privateHostedZone,
+            recordName: 'service',
+            domainName: 'private.interzonedev.com'
         });
     }
 }
