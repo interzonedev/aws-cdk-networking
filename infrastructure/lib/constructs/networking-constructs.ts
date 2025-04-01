@@ -53,7 +53,7 @@ export class NetworkingConstructs extends CommonConstruct {
         new CnameRecord(this, 'public-dns-cname-record', {
             zone: publicHostedZone,
             recordName: 'www',
-            domainName: 'public.interzonedev.com'
+            domainName: 'interzonedev.com'
         });
 
         // A Record in Private Zone
@@ -67,7 +67,7 @@ export class NetworkingConstructs extends CommonConstruct {
         new CnameRecord(this, 'private-dns-cname-record', {
             zone: privateHostedZone,
             recordName: 'service',
-            domainName: 'private.interzonedev.com'
+            domainName: 'my-service.private.interzonedev.com'
         });
     }
 }
