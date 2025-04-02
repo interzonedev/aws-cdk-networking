@@ -2,7 +2,8 @@ import { Construct } from 'constructs';
 import { CommonConstruct, CommonConstructProps } from './common-construct';
 import { SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { ARecord, CnameRecord, PrivateHostedZone, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
-import { getConstructName } from '../../config/environments';
+import { getAbbreviatedConstructName, getConstructName } from '../../config/environments';
+import { NetworkLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 export interface NetworkingConstructsProps extends CommonConstructProps {
 }
@@ -33,6 +34,10 @@ export class NetworkingConstructs extends CommonConstruct {
             natGateways: 1 // Required for PRIVATE_WITH_EGRESS subnets
         });
 
+        const privateVPCSubnets = vpc.selectSubnets({
+            subnetGroupName: 'private-subnet'
+        });
+
         const publicHostedZone = new PublicHostedZone(this, 'public-hosted-zone', {
             zoneName: 'public.interzonedev.com'
         });
@@ -40,6 +45,15 @@ export class NetworkingConstructs extends CommonConstruct {
         const privateHostedZone = new PrivateHostedZone(this, 'private-hosted-zone', {
             zoneName: 'private.interzonedev.com',
             vpc: vpc
+        });
+
+        const loadBalancerId = 'load-balancer';
+        const loadBalancerName = getAbbreviatedConstructName(stackIdFragment, 'lb');
+        const loadBalancer = new NetworkLoadBalancer(this, loadBalancerId, {
+            loadBalancerName: loadBalancerName,
+            vpc: vpc,
+            vpcSubnets: privateVPCSubnets,
+            internetFacing: false
         });
 
         // A Record in Public Zone
