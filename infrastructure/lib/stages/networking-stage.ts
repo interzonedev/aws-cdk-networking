@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import { NetworkingStack } from '../stacks/networking-stack';
 import { getStackName } from '../../config/environments';
-import { CommonStage, CommonStageProps } from './common-stage';
+import { CommonStage, CommonStageProps } from '@interzonedev/aws-cdk-common';
 
 export interface NetworkingStageProps extends CommonStageProps {
 }

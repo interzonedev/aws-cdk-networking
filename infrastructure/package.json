@@ -17,6 +17,7 @@
     "ts-jest": "^29.3.0"
   },
   "dependencies": {
+    "@interzonedev/aws-cdk-common": "^1.0.0",
     "aws-cdk-lib": "^2.186.0",
     "constructs": "^10.4.2"
   }

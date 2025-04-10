@@ -1,5 +1,5 @@
 import { App } from 'aws-cdk-lib';
-import { DEPLOY_ACCOUNTS, DEPLOY_REGIONS } from '../config/environments';
+import { APP_NAME, DEPLOY_ACCOUNTS, DEPLOY_REGIONS } from '../config/environments';
 import { EnvironmentStage } from '../lib/stages/environment-stage';
 
 const app = new App();
@@ -25,7 +25,8 @@ DEPLOY_ACCOUNTS.forEach(awsAccount =>
             codeVersionHash: codeVersionHash,
             codeVersionRef: codeVersionRef,
             awsAccount: awsAccount,
-            region: region
+            region: region,
+            appName: APP_NAME
         })
     )
 );
