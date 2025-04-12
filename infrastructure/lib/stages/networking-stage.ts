@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import { NetworkingStack } from '../stacks/networking-stack';
-import { getStackName } from '../../config/environments';
-import { CommonStage, CommonStageProps } from '@interzonedev/aws-cdk-common';
+import { APP_NAME } from '../../config/environments';
+import { CommonStage, CommonStageProps, getStackName } from '@interzonedev/aws-cdk-common';
 
 export interface NetworkingStageProps extends CommonStageProps {
 }
@@ -13,10 +13,12 @@ export class NetworkingStage extends CommonStage {
         const {stackIdFragment, codeVersionHash, codeVersionRef} = props;
 
         new NetworkingStack(this, 'networking-stack', {
-            stackName: getStackName(stackIdFragment, 'networking'),
+            stackName: getStackName(APP_NAME, stackIdFragment, 'networking'),
+            appName: APP_NAME,
             stackIdFragment: stackIdFragment,
             codeVersionHash: codeVersionHash,
-            codeVersionRef: codeVersionRef
+            codeVersionRef: codeVersionRef,
+            exportSuffix: this.artifactId
         });
     }
 }

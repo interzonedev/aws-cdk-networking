@@ -1,9 +1,6 @@
-export const APP_NAME = 'aws-cdk-networking';
+import { AWSAccount } from '@interzonedev/aws-cdk-common';
 
-export interface AWSAccount {
-    name: string;
-    number: string;
-}
+export const APP_NAME = 'aws-cdk-networking';
 
 export const DEPLOY_ACCOUNTS: AWSAccount[] = [
     {
@@ -16,11 +13,3 @@ export const DEPLOY_REGIONS: string[] = [
     'us-west-1',
     'us-west-2'
 ];
-
-export const getStackName = (nameFragment: string, constructType: string): string => {
-    return `app-${APP_NAME}-${nameFragment}-${constructType}`;
-};
-
-export const getConstructName = (nameFragment: string, constructType: string): string => {
-    return `app-${APP_NAME}-${nameFragment}-${constructType}`;
-};

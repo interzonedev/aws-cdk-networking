@@ -1,6 +1,6 @@
 import { App } from 'aws-cdk-lib';
 import { APP_NAME, DEPLOY_ACCOUNTS, DEPLOY_REGIONS } from '../config/environments';
-import { EnvironmentStage } from '../lib/stages/environment-stage';
+import { ACNEnvironmentStage } from '../lib/stages/acn-environment-stage';
 
 const app = new App();
 
@@ -20,7 +20,7 @@ if (stackIdFragment === undefined) {
 
 DEPLOY_ACCOUNTS.forEach(awsAccount =>
     DEPLOY_REGIONS.forEach(region =>
-        new EnvironmentStage(app, `${awsAccount.name}-${region}`, {
+        new ACNEnvironmentStage(app, `${awsAccount.name}-${region}`, {
             stackIdFragment: stackIdFragment,
             codeVersionHash: codeVersionHash,
             codeVersionRef: codeVersionRef,

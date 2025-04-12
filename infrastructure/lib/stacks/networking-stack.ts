@@ -1,7 +1,6 @@
 import { Construct } from 'constructs';
-import { CommonStack, CommonStackProps } from './common-stack';
+import { CommonStack, CommonStackProps } from '@interzonedev/aws-cdk-common';
 import { NetworkingConstructsProps, NetworkingConstructs } from '../constructs/networking-constructs';
-
 
 export interface NetworkingStackProps extends CommonStackProps, NetworkingConstructsProps {
 }
